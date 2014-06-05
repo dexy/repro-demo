@@ -43,5 +43,3 @@ RUN adduser repro sudo
 ENV HOME /home/repro
 
 USER repro
-
-ADD content/ /home/repro/
