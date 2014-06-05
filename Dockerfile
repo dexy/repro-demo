@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Use squid deb proxy as per https://gist.github.com/dergachev/8441335
 # Uncomment this line if squid-deb-proxy configured on host.
-RUN /sbin/ip route | awk '/default/ { print "Acquire::http::Proxy \"http://"$3":8000\";" }' > /etc/apt/apt.conf.d/30proxy
+# RUN /sbin/ip route | awk '/default/ { print "Acquire::http::Proxy \"http://"$3":8000\";" }' > /etc/apt/apt.conf.d/30proxy
 
 RUN apt-get update
 
