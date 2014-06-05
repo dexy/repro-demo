@@ -1,6 +1,7 @@
 article.tex|hd|ft|jinja|latex:
     - _*.tex
+    - .py|pyg|l
     - .py|idio|l
     - .py|idio|pycon|pyg|l:
-        - pycon: { add-new-files: True }
+        - pycon: { add-new-files: True, additional-doc-settings: { output: False }}
     - article.tex|pyg|l
