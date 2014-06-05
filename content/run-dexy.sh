@@ -1,0 +1,2 @@
+dexy setup
+dexy
