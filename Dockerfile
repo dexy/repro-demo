@@ -1,45 +1,63 @@
-FROM       ubuntu:14.04
-MAINTAINER Ana Nelson <ana@ananelson.com>
+FROM                    ubuntu:latest
+MAINTAINER              Ana Nelson <ana@ananelson.com>
 
-RUN localedef -v -c -i en_US -f UTF-8 en_US.UTF-8 || :
-ENV DEBIAN_FRONTEND noninteractive
+### "configure-apt"
+RUN echo "APT::Get::Assume-Yes true;" >> /etc/apt/apt.conf.d/80custom; \
+    echo "APT::Get::Quiet true;" >> /etc/apt/apt.conf.d/80custom; \
+    apt-get update
 
-# Use squid deb proxy as per https://gist.github.com/dergachev/8441335
-# Uncomment this line if squid-deb-proxy configured on host.
-# RUN /sbin/ip route | awk '/default/ { print "Acquire::http::Proxy \"http://"$3":8000\";" }' > /etc/apt/apt.conf.d/30proxy
+RUN apt-get install \
 
-RUN apt-get update
+### "squid-deb-proxy"
+RUN HOST_IP_FILE=/tmp/host-ip.txt; \
+      /sbin/ip route | awk '/default/ { print "http://"$3":8000" }' > $HOST_IP_FILE; \
+      HOST_IP=`cat $HOST_IP_FILE`; \
+      curl -s $HOST_IP | grep squid && echo "found squid"; \
+      echo "Acquire::http::Proxy \"$HOST_IP\";" > /etc/apt/apt.conf.d/30proxy || echo "no squid"
 
-# Install system utils.
-RUN apt-get install -y build-essential
-RUN apt-get install -y adduser
-RUN apt-get install -y curl
-RUN apt-get install -y sudo
+### "utils"
+RUN apt-get install \
+        build-essential \
+        curl \
+        sudo \
+        adduser
 
-# Install nice things to have.
-RUN apt-get install -y ack-grep
-RUN apt-get install -y strace
-RUN apt-get install -y vim
+### "nice-things"
+RUN apt-get install \
+        ack-grep \
+        git \ 
+        rsync \
+        strace \ 
+        tree \ 
+        unzip \
+        vim \ 
+        wget
 
-# Install Python
-RUN apt-get install -y python
-RUN apt-get install -y python-dev
-RUN apt-get install -y python-pip
+### "python"
+RUN apt-get install \
+        python \
+        python-dev \
+        python-pip
 
-# Install Scipy (includes numpy) and Matplotlib
-RUN apt-get install -y python-scipy
-RUN apt-get install -y python-matplotlib
+### "scipy"
+RUN apt-get install \
+        python-scipy \
+        python-matplotlib
 
-# Install LaTeX
-RUN apt-get install -y texlive
-RUN apt-get install -y --no-install-recommends texlive-latex-extra
+### "dexy"
+RUN pip install \
+        dexy
 
-RUN pip install dexy
+### "create-user"
+RUN useradd -m repro; \
+    echo "repro:password" | chpasswd; \
+    sudo echo "repro ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/docker; \
+    chmod 0440 /etc/sudoers.d/docker
 
-# Create a user
-RUN useradd -m -p $(perl -e'print crypt("foobarbaz", "aa")') repro
-RUN adduser repro sudo
-
+### "activate-user"
 ENV HOME /home/repro
-
 USER repro
+WORKDIR /home/repro
+
+### "add-content"
+ADD content /home/repro/

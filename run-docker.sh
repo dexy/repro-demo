@@ -1,5 +1,5 @@
 set -e
-docker build -t repro/dexy .
+docker build -t dexy/simple-repro-demo .
 docker run -t -i \
-    -v `pwd`/content:/home/repro/ \
-    repro/dexy /bin/bash
+    -v `pwd`/content:/home/repro/content \
+    dexy/simple-repro-demo /bin/bash
