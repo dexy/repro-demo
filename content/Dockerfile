@@ -6,15 +6,6 @@ RUN echo "APT::Get::Assume-Yes true;" >> /etc/apt/apt.conf.d/80custom; \
     echo "APT::Get::Quiet true;" >> /etc/apt/apt.conf.d/80custom; \
     apt-get update
 
-RUN apt-get install \
-
-### "squid-deb-proxy"
-RUN HOST_IP_FILE=/tmp/host-ip.txt; \
-      /sbin/ip route | awk '/default/ { print "http://"$3":8000" }' > $HOST_IP_FILE; \
-      HOST_IP=`cat $HOST_IP_FILE`; \
-      curl -s $HOST_IP | grep squid && echo "found squid"; \
-      echo "Acquire::http::Proxy \"$HOST_IP\";" > /etc/apt/apt.conf.d/30proxy || echo "no squid"
-
 ### "utils"
 RUN apt-get install \
         build-essential \
@@ -44,7 +35,14 @@ RUN apt-get install \
         python-scipy \
         python-matplotlib
 
+### "latex"
+RUN apt-get install \
+        texlive \
+        texlive-latex-extra
+
 ### "dexy"
+RUN pip install --pre \
+        pygments
 RUN pip install \
         dexy
 
@@ -58,6 +56,3 @@ RUN useradd -m repro; \
 ENV HOME /home/repro
 USER repro
 WORKDIR /home/repro
-
-### "add-content"
-ADD content /home/repro/
