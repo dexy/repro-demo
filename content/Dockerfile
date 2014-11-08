@@ -40,9 +40,12 @@ RUN apt-get install \
         texlive \
         texlive-latex-extra
 
-### "dexy"
+### "python-packages"
 RUN pip install --pre \
-        pygments
+        pygments \
+        xlwt
+
+### "dexy"
 RUN pip install \
         dexy
 
